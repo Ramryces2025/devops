@@ -4,33 +4,51 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      steps { checkout scm }
-    }
-    stage('Build') {
       steps {
-        bat 'echo Compilando...'
-        bat 'dir'
+        checkout scm
       }
     }
+
+    stage('Build') {
+      steps {
+        sh 'echo Compilando...'
+        sh 'ls -la'
+      }
+    }
+
     stage('Test') {
       steps {
         // Simulamos tests
-        bat 'echo Ejecutando tests... & exit /b 0'
+        sh '''
+          echo Ejecutando tests...
+          # aquí irían tus comandos de test reales
+        '''
       }
     }
+
     stage('Run script') {
       steps {
-        bat 'call scripts\\hola.bat'
+        sh '''
+          chmod +x script/hola.sh
+          ./script/hola.sh
+        '''
       }
     }
+
     stage('Archive') {
       steps {
         archiveArtifacts artifacts: "build-${env.BUILD_NUMBER}.txt", fingerprint: true
       }
     }
   }
+
   post {
-    success { echo '✅ Todo OK' }
-    failure { echo '❌ Algo falló' }
+    success {
+      echo '✅ Todo OK'
+    }
+    failure {
+      echo '❌ Algo falló'
+    }
   }
 }
+
